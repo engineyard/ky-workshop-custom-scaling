@@ -1,10 +1,10 @@
 # Custom EYK autoscaling for Passenger and Sidekiq
 
-This is a demo application that displays how the `Custom EYK HPA` can be used when it comes to web traffic and sidekiq jobs. Specifically, the application is using `passenger` webserver, but it could be used as an example in other cases too.
+This is a demo application that displays how the `Custom EYK autoscaling` can be used when it comes to web traffic and sidekiq jobs. Specifically, the application is using `passenger` webserver, but it could be used as an example in other cases too.
 
 ### Configuration
 
-The application will use just SQLite. Since no communication is needed for our backend (no information shared among the webserver e.g. users etc), SQLite will do just fine. This means that the only configuration we should provide is the one regarding the `Custom EYK HPA`and redis.
+The application will use just SQLite. Since no communication is needed for our backend (no information shared among the webserver e.g. users etc), SQLite will do just fine. This means that the only configuration we should provide is the one regarding the `Custom EYK autoscaling`and redis.
 
 * for redis:
 
@@ -12,7 +12,7 @@ The application will use just SQLite. Since no communication is needed for our b
 REDIS_URL                                   redis://ec2-xxx-xxx-xxx-xxxredis://ec2-18-188-153-124.us-east-2.compute.amazonaws.com:6379/09.us-east-2.compute.amazonaws.com:6379/09
 ```
 
-* for the `web` pods `Custom EYK HPA` we issue:
+* for the `web` pods `Custom EYK autoscaling` we issue:
 
 ```
 eyk config:set KY_AUTOSCALING_web_ENABLED=true KY_AUTOSCALING_web_MAX_REPLICAS=20 KY_AUTOSCALING_web_METRIC_NAME=passenger_workers KY_AUTOSCALING_web_METRIC_QUERY="avg(passenger_workers{service=\"<application's_name_here>\"})" KY_AUTOSCALING_web_METRIC_TYPE=Prometheus KY_AUTOSCALING_web_MIN_REPLICAS=3 KY_AUTOSCALING_web_TARGET_TYPE=Value KY_AUTOSCALING_web_TARGET_VALUE=4 --app=<application's_name_here>
@@ -33,7 +33,7 @@ KY_AUTOSCALING_web_TARGET_VALUE             4
 
 
 
-* for the `sidekiq` pods `Custom EYK HPA` we issue:
+* for the `sidekiq` pods `Custom EYK autoscaling` we issue:
 
 ```
 eyk config:set KY_AUTOSCALING_sidekiq_ENABLED=true KY_AUTOSCALING_sidekiq_MAX_REPLICAS=20 KY_AUTOSCALING_sidekiq_METRIC_NAME=sidekiq_busy_percentage KY_AUTOSCALING_sidekiq_METRIC_QUERY="avg(sidekiq_busy_percentage{service=\"<application's_name_here>\"})" KY_AUTOSCALING_sidekiq_METRIC_TYPE=Prometheus KY_AUTOSCALING_sidekiq_MIN_REPLICAS=2 KY_AUTOSCALING_sidekiq_TARGET_TYPE=Value KY_AUTOSCALING_sidekiq_TARGET_VALUE=70 --app=<application's_name_here>
@@ -66,7 +66,7 @@ The application exposes the following routes:
 
 The route `/add-requests-in-queue` tries to simulate a request that takes too much time to complete. Having a number of such simultaneusly requests will end up choking the passenger web server. 
 
-In order to avoid requests queueing, we need to enable `Custom EYK HPA` so that more web pods will be started once a specific metric reaches a limit. In our case we have used the metric `passenger_workers` that is the number of passenger workers reported via `passenger-status`. Specifically we use the **average** number of `passenger_workers` reported across all our web pods.
+In order to avoid requests queueing, we need to enable `Custom EYK autoscaling` so that more web pods will be started once a specific metric reaches a limit. In our case we have used the metric `passenger_workers` that is the number of passenger workers reported via `passenger-status`. Specifically we use the **average** number of `passenger_workers` reported across all our web pods.
 
 One issue with the above approach is that the `custom metrics` is just a route in our application. Prometheus will scrape that route in order to obtain the desired metric and then signal the HPA to take action. In cases of high traffic spikes the requests to the `/metric` will be also queued, leading to no scaling.
 
