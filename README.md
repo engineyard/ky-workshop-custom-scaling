@@ -1,4 +1,4 @@
-# Custom EYK HPA for Passenger and Sidekiq
+# Custom EYK autoscaling for Passenger and Sidekiq
 
 This is a demo application that displays how the `Custom EYK HPA` can be used when it comes to web traffic and sidekiq jobs. Specifically, the application is using `passenger` webserver, but it could be used as an example in other cases too.
 
